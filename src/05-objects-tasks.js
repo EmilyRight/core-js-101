@@ -23,7 +23,7 @@
 function Rectangle(width, height) {
   this.width = width;
   this.height = height;
-  this.getArea = function () {
+  this.getArea = function getArea() {
     return this.width * this.height;
   };
 }
@@ -57,6 +57,9 @@ function getJSON(obj) {
  */
 function fromJSON(/* proto, json */) {
   throw new Error('Not implemented');
+  // const obj = JSON.parse(json);
+  // const clone = Object.create(obj, Object.getOwnPropertyDescriptors(obj));
+  // return clone;
 }
 
 

@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-properties */
+/* eslint-disable no-shadow */
 /* *********************************************************************************************
  *                                                                                             *
  * Please read the following tutorial before implementing tasks:                                *
@@ -46,6 +48,9 @@ function getComposition(/* f, g */) {
  */
 function getPowerFunction(/* exponent */) {
   throw new Error('Not implemented');
+  // this.exponent = exponent;
+  // const power = (num) => num;
+  // return Math.pow(power, exponent);
 }
 
 
