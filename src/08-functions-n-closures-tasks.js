@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-restricted-properties */
 /* eslint-disable no-shadow */
 /* *********************************************************************************************

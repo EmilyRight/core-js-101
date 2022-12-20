@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-restricted-properties */
 /* *******************************************************************************************
  *                                                                                           *
@@ -23,8 +24,6 @@
 function getRectangleArea(width, height) {
   return width * height;
 }
-
-
 /**
  * Returns a circumference of circle given by radius.
  *
