@@ -471,9 +471,14 @@ function toStringList(arr) {
  *      { country: 'Russia',  city: 'Saint Petersburg' }
  *    ]
  */
-function sortCitiesArray(/* arr */) {
-  throw new Error('Not implemented');
-  // return arr.sort((a, b) => (a.country > b.country && a.city > b.city ? 1 : -1)).reverse();
+function sortCitiesArray(arr) {
+  return arr.sort((a, b) => {
+    if (a.country === b.country) {
+      if (a.city < b.city) return -1;
+      return (a.city > b.city) ? 1 : 0;
+    }
+    return (a.country < b.country) ? -1 : 1;
+  });
 }
 
 /**
@@ -494,8 +499,13 @@ function sortCitiesArray(/* arr */) {
  *           [0,0,0,1,0],
  *           [0,0,0,0,1]]
  */
-function getIdentityMatrix(/* n */) {
-  throw new Error('Not implemented');
+function getIdentityMatrix(n) {
+  const arr = Array(n).fill(Array(n).fill(0));
+  return arr.map((a, i) => {
+    const b = [...a];
+    b[i] = 1;
+    return b;
+  });
 }
 
 /**
@@ -569,8 +579,11 @@ function distinct(arr) {
  *    "Poland" => ["Lodz"]
  *   }
  */
-function group(/* array, keySelector, valueSelector */) {
-  throw new Error('Not implemented');
+function group(array, keySelector, valueSelector) {
+  const map = new Map();
+  array.map((el) => map.set(keySelector(el), []));
+  array.map((el) => map.get(keySelector(el)).push(valueSelector(el)));
+  return map;
 }
 
 
@@ -587,8 +600,8 @@ function group(/* array, keySelector, valueSelector */) {
  *   [[1, 2], [3, 4], [5, 6]], (x) => x     =>   [ 1, 2, 3, 4, 5, 6 ]
  *   ['one','two','three'], (x) => x.split('')  =>   ['o','n','e','t','w','o','t','h','r','e','e']
  */
-function selectMany(/* arr, childrenSelector */) {
-  throw new Error('Not implemented');
+function selectMany(arr, childrenSelector) {
+  return arr.map(childrenSelector).reduce((acc, el) => acc.concat(el), []);
 }
 
 
@@ -604,8 +617,8 @@ function selectMany(/* arr, childrenSelector */) {
  *   ['one','two','three'], [2]       => 'three'  (arr[2])
  *   [[[ 1, 2, 3]]], [ 0, 0, 1 ]      => 2        (arr[0][0][1])
  */
-function getElementByIndexes(/* arr, indexes */) {
-  throw new Error('Not implemented');
+function getElementByIndexes(arr, indexes) {
+  return indexes.reduce((acc, index) => acc[index], arr);
 }
 
 

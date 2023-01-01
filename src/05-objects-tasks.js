@@ -56,11 +56,10 @@ function getJSON(obj) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
-  // const obj = JSON.parse(json);
-  // const clone = Object.create(obj, Object.getOwnPropertyDescriptors(obj));
-  // return clone;
+function fromJSON(proto, json) {
+  const obj = JSON.parse(json);
+  Object.setPrototypeOf(obj, proto);
+  return obj;
 }
 
 
@@ -119,34 +118,142 @@ function fromJSON(/* proto, json */) {
  */
 
 const cssSelectorBuilder = {
+  selector: {
+    element: '',
+    classList: [],
+    id: '',
+    attrList: [],
+    pseudoElement: '',
+    pseudoClassList: [],
+  },
+
+  errors: {
+    uniqueElementsError:
+      'Element, id and pseudo-element should not occur more then one time inside the selector',
+    orderSettingElementsError:
+      'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
+  },
+
+  combinedSelectorStr: '',
+
   element(value) {
-    return value;
+    const newSelectorBuilder = { ...this };
+    newSelectorBuilder.selector = JSON.parse(JSON.stringify(this.selector));
+
+    if (newSelectorBuilder.selector.element) {
+      throw newSelectorBuilder.errors.uniqueElementsError;
+    }
+    if (
+      newSelectorBuilder.selector.id
+      || newSelectorBuilder.selector.classList.length > 0
+      || newSelectorBuilder.selector.attrList.length > 0
+      || newSelectorBuilder.selector.pseudoClassList.length > 0
+      || newSelectorBuilder.selector.pseudoElement
+    ) {
+      throw newSelectorBuilder.errors.orderSettingElementsError;
+    }
+    newSelectorBuilder.selector.element = value;
+    return newSelectorBuilder;
   },
 
   id(value) {
-    return `#${value}`;
+    const newSelectorBuilder = { ...this };
+    newSelectorBuilder.selector = JSON.parse(JSON.stringify(this.selector));
+    const errorMessage = 'Element, id and pseudo-element should not occur more then one time inside the selector';
+    if (newSelectorBuilder.selector.id) {
+      throw errorMessage;
+    }
+    if (
+      newSelectorBuilder.selector.classList.length > 0
+      || newSelectorBuilder.selector.attrList.length > 0
+      || newSelectorBuilder.selector.pseudoClassList.length > 0
+      || newSelectorBuilder.selector.pseudoElement
+    ) {
+      throw newSelectorBuilder.errors.orderSettingElementsError;
+    }
+    newSelectorBuilder.selector.id = value;
+    return newSelectorBuilder;
   },
 
   class(value) {
-    return value;
+    const newSelectorBuilder = { ...this };
+    newSelectorBuilder.selector = JSON.parse(JSON.stringify(this.selector));
+    if (
+      newSelectorBuilder.selector.attrList.length > 0
+      || newSelectorBuilder.selector.pseudoClassList.length > 0
+      || newSelectorBuilder.selector.pseudoElement
+    ) {
+      throw newSelectorBuilder.errors.orderSettingElementsError;
+    }
+    newSelectorBuilder.selector.classList.push(value);
+    return newSelectorBuilder;
   },
 
   attr(value) {
-    return [value];
+    const newSelectorBuilder = { ...this };
+    newSelectorBuilder.selector = JSON.parse(JSON.stringify(this.selector));
+    if (
+      newSelectorBuilder.selector.pseudoClassList.length > 0
+      || newSelectorBuilder.selector.pseudoElement
+    ) {
+      throw newSelectorBuilder.errors.orderSettingElementsError;
+    }
+    newSelectorBuilder.selector.attrList.push(value);
+    return newSelectorBuilder;
   },
 
   pseudoClass(value) {
-    return `:${value}`;
+    const newSelectorBuilder = { ...this };
+    newSelectorBuilder.selector = JSON.parse(JSON.stringify(this.selector));
+    if (newSelectorBuilder.selector.pseudoElement) {
+      throw newSelectorBuilder.errors.orderSettingElementsError;
+    }
+    newSelectorBuilder.selector.pseudoClassList.push(value);
+    return newSelectorBuilder;
   },
 
   pseudoElement(value) {
-    return `:${value}`;
+    const newSelectorBuilder = { ...this };
+    newSelectorBuilder.selector = JSON.parse(JSON.stringify(this.selector));
+    const errorMessage = 'Element, id and pseudo-element should not occur more then one time inside the selector';
+    if (newSelectorBuilder.selector.pseudoElement) {
+      throw errorMessage;
+    }
+    newSelectorBuilder.selector.pseudoElement = value;
+    return newSelectorBuilder;
   },
 
   combine(selector1, combinator, selector2) {
-    return selector1 + combinator + selector2;
+    const newSelectorBuilder = { ...this };
+    newSelectorBuilder.selector = JSON.parse(JSON.stringify(this.selector));
+    newSelectorBuilder.combinedSelectorStr = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+
+    return newSelectorBuilder;
   },
 
+  stringify() {
+    if (this.combinedSelectorStr) {
+      const str = this.combinedSelectorStr;
+      this.combinedSelectorStr = '';
+      return str;
+    }
+    const { element, id, pseudoElement } = this.selector;
+    let strClasses = '';
+    let strAttr = '';
+    let strPseudoClasses = '';
+    const strID = id ? `#${id}` : '';
+    const strPseudoElement = pseudoElement ? `::${pseudoElement}` : '';
+    if (this.selector.classList.length > 0) {
+      strClasses = `.${this.selector.classList.join('.')}`;
+    }
+    if (this.selector.attrList.length > 0) {
+      strAttr = `[${this.selector.attrList.join('][')}]`;
+    }
+    if (this.selector.pseudoClassList.length > 0) {
+      strPseudoClasses = `:${this.selector.pseudoClassList.join(':')}`;
+    }
+    return `${element}${strID}${strClasses}${strAttr}${strPseudoClasses}${strPseudoElement}`;
+  },
 };
 
 
